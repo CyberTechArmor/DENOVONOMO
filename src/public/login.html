@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Log in to De Novo NoMo">
+  <title>Log In — De Novo NoMo</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/pages.css">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+</head>
+<body class="login-page">
+
+  <div class="login-card">
+    <!-- Header -->
+    <div class="login-header">
+      <div class="login-logo">DN</div>
+      <h1>Welcome back</h1>
+      <p>Sign in to your De Novo NoMo account</p>
+    </div>
+
+    <!-- Error display -->
+    <div id="login-error" class="login-error" role="alert" aria-live="polite"></div>
+
+    <!-- Login form -->
+    <form id="login-form" class="login-form" novalidate>
+      <input type="hidden" id="csrf-token" name="_csrf" value="">
+
+      <!-- Email -->
+      <div class="form-group">
+        <label class="form-label" for="email">Email address</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          class="form-input"
+          placeholder="you@practice.com"
+          autocomplete="email"
+          required
+        >
+        <div class="form-error" id="email-error"></div>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="form-input"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          required
+        >
+        <div class="form-error" id="password-error"></div>
+      </div>
+
+      <!-- MFA section (hidden by default) -->
+      <div id="mfa-section" class="mfa-section form-group">
+        <label class="form-label" for="mfa-code">
+          <i data-lucide="shield" style="width:14px;height:14px;display:inline;vertical-align:-2px;margin-right:4px"></i>
+          Verification code
+        </label>
+        <input
+          type="text"
+          id="mfa-code"
+          name="mfa_code"
+          class="form-input"
+          placeholder="Enter 6-digit code"
+          autocomplete="one-time-code"
+          inputmode="numeric"
+          pattern="[0-9]{6}"
+          maxlength="6"
+        >
+        <div class="form-hint">Enter the code from your authenticator app</div>
+        <div class="form-error" id="mfa-error"></div>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" id="login-btn" class="btn btn-primary w-full">
+        Sign in
+      </button>
+    </form>
+
+    <!-- Footer -->
+    <div class="login-footer">
+      <a href="/">&larr; Back to home</a>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons();
+
+      const form = document.getElementById('login-form');
+      const errorBox = document.getElementById('login-error');
+      const mfaSection = document.getElementById('mfa-section');
+      const loginBtn = document.getElementById('login-btn');
+      const csrfInput = document.getElementById('csrf-token');
+
+      let pendingMfaSessionId = null;
+
+      // Fetch CSRF token on load
+      fetchCsrfToken();
+
+      async function fetchCsrfToken() {
+        try {
+          const res = await fetch('/api/csrf-token', { credentials: 'same-origin' });
+          if (res.ok) {
+            const data = await res.json();
+            csrfInput.value = data.csrfToken || '';
+          }
+        } catch (_) {
+          // CSRF fetch may fail in dev — form will still work
+        }
+      }
+
+      function showError(msg) {
+        errorBox.textContent = msg;
+        errorBox.classList.add('is-visible');
+      }
+
+      function hideError() {
+        errorBox.textContent = '';
+        errorBox.classList.remove('is-visible');
+      }
+
+      function setLoading(loading) {
+        loginBtn.disabled = loading;
+        loginBtn.textContent = loading ? 'Signing in\u2026' : 'Sign in';
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        hideError();
+
+        const email = form.email.value.trim();
+        const password = form.password.value;
+        const mfaCode = form.mfa_code ? form.mfa_code.value.trim() : '';
+
+        // If we have a pending MFA session, verify the code
+        if (pendingMfaSessionId && mfaCode) {
+          setLoading(true);
+          try {
+            const res = await fetch('/api/auth/mfa-verify', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfInput.value,
+              },
+              credentials: 'same-origin',
+              body: JSON.stringify({ mfaSessionId: pendingMfaSessionId, code: mfaCode }),
+            });
+
+            const data = await res.json().catch(() => ({}));
+
+            if (res.ok) {
+              window.location.href = '/app.html';
+              return;
+            }
+
+            showError(data.error || 'Invalid verification code.');
+          } catch (err) {
+            showError('Unable to connect. Please try again.');
+          } finally {
+            setLoading(false);
+          }
+          return;
+        }
+
+        // Basic validation
+        if (!email) {
+          document.getElementById('email-error').textContent = 'Email is required';
+          form.email.classList.add('is-invalid');
+          form.email.focus();
+          return;
+        }
+        document.getElementById('email-error').textContent = '';
+        form.email.classList.remove('is-invalid');
+
+        if (!password) {
+          document.getElementById('password-error').textContent = 'Password is required';
+          form.password.classList.add('is-invalid');
+          form.password.focus();
+          return;
+        }
+        document.getElementById('password-error').textContent = '';
+        form.password.classList.remove('is-invalid');
+
+        setLoading(true);
+
+        try {
+          const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-Token': csrfInput.value,
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ email, password }),
+          });
+
+          const data = await res.json().catch(() => ({}));
+
+          if (res.ok && data.user) {
+            // Successful login — redirect to app
+            window.location.href = '/app.html';
+            return;
+          }
+
+          // MFA required
+          if (data.requireMfa && data.mfaSessionId) {
+            pendingMfaSessionId = data.mfaSessionId;
+            mfaSection.classList.add('is-visible');
+            loginBtn.textContent = 'Verify';
+            document.getElementById('mfa-code').focus();
+            setLoading(false);
+            return;
+          }
+
+          // Error
+          showError(data.error || 'Invalid email or password.');
+        } catch (err) {
+          showError('Unable to connect. Please try again.');
+        } finally {
+          setLoading(false);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
