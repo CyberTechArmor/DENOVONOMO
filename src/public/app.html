@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="De Novo NoMo — Primary Care Technology Framework">
+  <title>De Novo NoMo</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/pages.css">
+  <link rel="stylesheet" href="/css/kanban.css">
+  <link rel="stylesheet" href="/css/editor.css">
+  <link rel="stylesheet" href="/css/print.css">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+
+  <!-- markdown-it -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.2/markdown-it.min.js" defer></script>
+</head>
+<body>
+  <div class="app-layout">
+
+    <!-- ================================================================== -->
+    <!-- Sidebar                                                             -->
+    <!-- ================================================================== -->
+    <aside id="sidebar" class="sidebar" role="navigation" aria-label="Main navigation">
+      <!-- Header -->
+      <div class="sidebar-header">
+        <div class="sidebar-logo">DN</div>
+        <span class="sidebar-brand">De Novo NoMo</span>
+        <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle sidebar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/></svg>
+        </button>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="sidebar-nav">
+        <!-- Main -->
+        <div class="sidebar-section">
+          <div class="sidebar-section-label">Main</div>
+          <a href="#/dashboard" class="nav-item" data-route="dashboard">
+            <i data-lucide="layout-dashboard"></i>
+            <span class="nav-item-label">Dashboard</span>
+          </a>
+          <a href="#/documents" class="nav-item" data-route="documents">
+            <i data-lucide="file-text"></i>
+            <span class="nav-item-label">Documents</span>
+          </a>
+          <a href="#/locations" class="nav-item" data-route="locations">
+            <i data-lucide="map-pin"></i>
+            <span class="nav-item-label">Locations</span>
+          </a>
+        </div>
+
+        <!-- Admin -->
+        <div class="sidebar-section" id="admin-nav-section">
+          <div class="sidebar-section-label">Admin</div>
+          <a href="#/users" class="nav-item" data-route="users">
+            <i data-lucide="users"></i>
+            <span class="nav-item-label">Users</span>
+          </a>
+          <a href="#/pricing" class="nav-item" data-route="pricing">
+            <i data-lucide="tag"></i>
+            <span class="nav-item-label">Pricing</span>
+          </a>
+        </div>
+
+        <!-- Settings -->
+        <div class="sidebar-section">
+          <div class="sidebar-section-label">Account</div>
+          <a href="#/profile" class="nav-item" data-route="profile">
+            <i data-lucide="settings"></i>
+            <span class="nav-item-label">Settings</span>
+          </a>
+        </div>
+      </nav>
+
+      <!-- Footer / User -->
+      <div class="sidebar-footer">
+        <div class="sidebar-user" id="sidebar-user">
+          <div class="avatar" id="sidebar-avatar">?</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="sidebar-user-name">Loading...</div>
+            <div class="sidebar-user-role" id="sidebar-user-role">-</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+    <!-- ================================================================== -->
+    <!-- Main Content                                                        -->
+    <!-- ================================================================== -->
+    <div class="main-content" id="main-content">
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <!-- Hamburger (mobile) -->
+          <button class="topbar-hamburger" id="topbar-hamburger" aria-label="Open navigation">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+          </button>
+
+          <!-- Breadcrumbs -->
+          <nav class="breadcrumb" id="breadcrumb" aria-label="Breadcrumb">
+            <span class="breadcrumb-item"><a href="#/dashboard">Home</a></span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item" id="breadcrumb-current">Dashboard</span>
+          </nav>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Search trigger -->
+          <button class="topbar-action" id="search-trigger" aria-label="Search" data-tooltip="Search (Ctrl+K)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </button>
+
+          <!-- Notifications -->
+          <div class="dropdown" style="position:relative;">
+            <button class="topbar-action" id="notification-bell" aria-label="Notifications">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+              <span class="notification-dot hidden" id="notification-badge"></span>
+            </button>
+            <div class="notification-dropdown" id="notification-dropdown">
+              <div class="notification-dropdown-header">
+                <span>Notifications</span>
+                <button class="btn btn-ghost btn-sm" id="mark-all-read">Mark all read</button>
+              </div>
+              <div class="notification-list" id="notification-list">
+                <div class="empty-state" style="padding:var(--space-5)">
+                  <p class="text-sm text-muted">No new notifications</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- User menu -->
+          <div class="dropdown">
+            <button class="topbar-user" id="user-menu-btn" aria-label="User menu">
+              <div class="avatar avatar-sm" id="topbar-avatar">?</div>
+              <span class="topbar-user-name" id="topbar-user-name"></span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <div class="dropdown-menu is-right" id="user-dropdown">
+              <a class="dropdown-item" data-action="profile">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Profile
+              </a>
+              <a class="dropdown-item" href="#/profile">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                Settings
+              </a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item is-danger" data-action="logout">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                Sign out
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page content (SPA pages render here) -->
+      <div class="content-area" id="page-content">
+        <div class="empty-state">
+          <div class="spinner spinner-lg"></div>
+          <p class="mt-4 text-muted">Loading...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================== -->
+  <!-- Command Palette Modal                                               -->
+  <!-- ================================================================== -->
+  <div class="command-palette-overlay" id="command-palette-overlay">
+    <div class="command-palette">
+      <div class="command-palette-input">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="command-palette-search" placeholder="Search documents, locations, commands..." autocomplete="off">
+        <kbd>Esc</kbd>
+      </div>
+      <div class="command-palette-results" id="command-palette-results">
+        <div class="command-palette-group-label">Quick actions</div>
+        <div class="command-palette-item" data-action="navigate" data-target="#/dashboard">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+          Go to Dashboard
+        </div>
+        <div class="command-palette-item" data-action="navigate" data-target="#/documents">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+          Go to Documents
+        </div>
+        <div class="command-palette-item" data-action="navigate" data-target="#/locations">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          Go to Locations
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================== -->
+  <!-- Toast Container                                                     -->
+  <!-- ================================================================== -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <!-- ================================================================== -->
+  <!-- JavaScript                                                          -->
+  <!-- ================================================================== -->
+  <script type="module" src="/js/api.js"></script>
+  <script type="module" src="/js/auth.js"></script>
+  <script type="module" src="/js/router.js"></script>
+  <script type="module" src="/js/websocket.js"></script>
+  <script type="module" src="/js/utils/shortcuts.js"></script>
+  <script type="module" src="/js/utils/dates.js"></script>
+  <script type="module" src="/js/utils/format.js"></script>
+  <script type="module" src="/js/components/toast.js"></script>
+  <script type="module" src="/js/components/modal.js"></script>
+  <script type="module" src="/js/components/chart.js"></script>
+  <script type="module" src="/js/components/kanban-board.js"></script>
+  <script type="module" src="/js/components/markdown-editor.js"></script>
+  <script type="module" src="/js/components/diff-viewer.js"></script>
+  <script type="module" src="/js/components/share-manager.js"></script>
+  <script type="module" src="/js/components/cursor-overlay.js"></script>
+  <script type="module" src="/js/components/presence.js"></script>
+  <script type="module" src="/js/pages/dashboard.js"></script>
+  <script type="module" src="/js/pages/documents.js"></script>
+  <script type="module" src="/js/pages/document-view.js"></script>
+  <script type="module" src="/js/pages/document-edit.js"></script>
+  <script type="module" src="/js/pages/decisions.js"></script>
+  <script type="module" src="/js/pages/kanban.js"></script>
+  <script type="module" src="/js/pages/costs.js"></script>
+  <script type="module" src="/js/pages/users.js"></script>
+  <script type="module" src="/js/pages/profile.js"></script>
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

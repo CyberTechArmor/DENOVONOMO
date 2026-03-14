@@ -1,0 +1,361 @@
+/* ==========================================================================
+   De Novo NoMo — Document Editor & Diff View
+   ========================================================================== */
+
+/* ---------- Editor Container ---------- */
+.editor-wrapper {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+/* ---------- Toolbar ---------- */
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 56px; /* below topbar */
+  z-index: 50;
+  flex-wrap: wrap;
+}
+
+.editor-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.editor-toolbar-group + .editor-toolbar-group {
+  padding-left: var(--space-2);
+  margin-left: var(--space-2);
+  border-left: 1px solid var(--color-border);
+}
+
+.editor-toolbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.editor-toolbar-btn:hover {
+  background: var(--color-bg-subtle);
+  color: var(--color-text);
+}
+
+.editor-toolbar-btn.is-active {
+  background: var(--color-primary-50);
+  color: var(--color-primary-700);
+}
+
+.editor-toolbar-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.editor-toolbar-select {
+  padding: 4px 8px;
+  font-size: 0.8125rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.editor-toolbar-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--color-border);
+  margin: 0 var(--space-2);
+}
+
+.editor-toolbar-spacer {
+  flex: 1;
+}
+
+/* ---------- Editor Content ---------- */
+.editor-content {
+  min-height: 400px;
+  padding: var(--space-6) var(--space-7);
+  max-width: 700px;
+  margin: 0 auto;
+  width: 100%;
+  outline: none;
+  line-height: 1.7;
+  font-size: var(--text-base);
+  color: var(--color-text);
+  caret-color: var(--color-primary-700);
+}
+
+.editor-content:focus {
+  outline: none;
+}
+
+.editor-content:empty::before {
+  content: attr(data-placeholder);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+/* Editor typography */
+.editor-content h1 { font-size: 1.75rem; font-weight: 700; margin: var(--space-5) 0 var(--space-3); font-family: var(--font-heading); }
+.editor-content h2 { font-size: 1.35rem; font-weight: 600; margin: var(--space-4) 0 var(--space-2); font-family: var(--font-heading); }
+.editor-content h3 { font-size: 1.1rem; font-weight: 600; margin: var(--space-4) 0 var(--space-2); font-family: var(--font-heading); }
+.editor-content p { margin-bottom: var(--space-3); }
+.editor-content ul,
+.editor-content ol { padding-left: var(--space-5); margin-bottom: var(--space-3); }
+.editor-content ul { list-style: disc; }
+.editor-content ol { list-style: decimal; }
+.editor-content li { margin-bottom: var(--space-1); }
+.editor-content blockquote {
+  border-left: 3px solid var(--color-accent-400);
+  padding-left: var(--space-4);
+  color: var(--color-text-muted);
+  margin: var(--space-3) 0;
+}
+.editor-content code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 1px 4px;
+}
+.editor-content pre {
+  background: var(--color-primary-900);
+  color: var(--color-primary-100);
+  padding: var(--space-4);
+  border-radius: var(--radius-default);
+  overflow-x: auto;
+  margin: var(--space-3) 0;
+}
+.editor-content pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+}
+.editor-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--space-3) 0;
+}
+.editor-content table th,
+.editor-content table td {
+  border: 1px solid var(--color-border);
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+}
+.editor-content table th {
+  background: var(--color-bg-subtle);
+  font-weight: 600;
+}
+.editor-content a {
+  color: var(--color-info);
+  text-decoration: underline;
+}
+.editor-content img {
+  max-width: 100%;
+  border-radius: var(--radius-default);
+  margin: var(--space-3) 0;
+}
+
+/* Checklist */
+.editor-content .checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  list-style: none;
+}
+
+.editor-content .checklist-item input[type="checkbox"] {
+  margin-top: 4px;
+  accent-color: var(--color-primary-700);
+}
+
+/* ---------- Editor Status Bar ---------- */
+.editor-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid var(--color-border);
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+}
+
+.editor-status-left,
+.editor-status-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.editor-save-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.editor-save-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-success);
+}
+
+.editor-save-dot.is-saving {
+  background: var(--color-warning);
+  animation: pulse 1s ease infinite;
+}
+
+.editor-save-dot.is-unsaved {
+  background: var(--color-text-muted);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ==========================================================================
+   Diff View
+   ========================================================================== */
+
+.diff-view {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+}
+
+/* Side-by-side */
+.diff-view.is-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.diff-pane {
+  overflow-x: auto;
+}
+
+.diff-pane + .diff-pane {
+  border-left: 1px solid var(--color-border);
+}
+
+.diff-pane-header {
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--color-bg-subtle);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+/* Diff lines */
+.diff-line {
+  display: flex;
+  padding: 0 var(--space-3);
+  min-height: 1.6em;
+  white-space: pre;
+}
+
+.diff-line-number {
+  width: 40px;
+  flex-shrink: 0;
+  text-align: right;
+  padding-right: var(--space-2);
+  color: var(--color-text-muted);
+  user-select: none;
+  opacity: 0.6;
+}
+
+.diff-line-content {
+  flex: 1;
+  padding-left: var(--space-2);
+}
+
+/* Added / Removed */
+.diff-added {
+  background: #e6f7f0;
+}
+
+.diff-added .diff-line-content {
+  color: #1a7a5c;
+}
+
+.diff-removed {
+  background: #fde2e4;
+}
+
+.diff-removed .diff-line-content {
+  color: #b91c28;
+}
+
+.diff-changed {
+  background: #fdf3d7;
+}
+
+/* Unified view */
+.diff-view.is-unified .diff-line {
+  padding: 0 var(--space-3);
+}
+
+.diff-gutter {
+  width: 24px;
+  flex-shrink: 0;
+  text-align: center;
+  color: var(--color-text-muted);
+  user-select: none;
+  font-weight: 600;
+}
+
+.diff-added .diff-gutter { color: var(--color-success); }
+.diff-removed .diff-gutter { color: var(--color-error); }
+
+/* Diff header/info */
+.diff-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-subtle);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.diff-header-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.diff-header-stats {
+  display: flex;
+  gap: var(--space-3);
+  font-size: 0.75rem;
+}
+
+.diff-stat-added {
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+.diff-stat-removed {
+  color: var(--color-error);
+  font-weight: 600;
+}

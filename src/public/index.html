@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="De Novo NoMo — The definitive technology framework for primary care practice infrastructure.">
+  <title>De Novo NoMo — Primary Care Technology Framework</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/pages.css">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+
+  <style>
+    /* Landing-specific inline overrides for initial paint */
+    .landing-page { background: var(--color-bg); }
+  </style>
+</head>
+<body class="landing-page">
+
+  <!-- Background animation -->
+  <div class="landing-bg" aria-hidden="true"></div>
+
+  <!-- Navigation -->
+  <header>
+    <nav class="landing-nav">
+      <a href="/" class="landing-nav-brand">
+        <span class="landing-nav-logo">DN</span>
+        De Novo NoMo
+      </a>
+      <div class="landing-nav-actions">
+        <a href="/login.html" class="btn btn-secondary">Log in</a>
+        <a href="/login.html" class="btn btn-primary">Get Started</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Hero -->
+  <main>
+    <section class="landing-hero">
+      <h1>The definitive technology framework for primary care practice infrastructure.</h1>
+      <p class="landing-hero-description">
+        Evidence-based guides, decision engines, and implementation checklists that eliminate
+        guesswork from healthcare IT. Built for consultants, practice managers, and clinical leaders.
+      </p>
+      <div class="landing-hero-actions">
+        <a href="/login.html" class="btn btn-primary btn-lg">
+          <i data-lucide="arrow-right" style="width:18px;height:18px"></i>
+          Start Building
+        </a>
+        <a href="#features" class="btn btn-secondary btn-lg">
+          <i data-lucide="book-open" style="width:18px;height:18px"></i>
+          Explore Framework
+        </a>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="landing-features">
+      <div class="landing-feature-card">
+        <div class="landing-feature-icon">
+          <i data-lucide="file-text"></i>
+        </div>
+        <h3>Implementation Guides</h3>
+        <p>
+          Comprehensive, versioned documentation covering every aspect of practice
+          technology — from EHR selection to network architecture. Collaboratively
+          authored with full revision history.
+        </p>
+      </div>
+
+      <div class="landing-feature-card">
+        <div class="landing-feature-icon">
+          <i data-lucide="git-branch"></i>
+        </div>
+        <h3>Decision Engine</h3>
+        <p>
+          Walk through structured decision trees tailored to your practice profile.
+          Get scored vendor recommendations, cost projections, and a prioritized
+          implementation roadmap.
+        </p>
+      </div>
+
+      <div class="landing-feature-card">
+        <div class="landing-feature-icon">
+          <i data-lucide="check-square"></i>
+        </div>
+        <h3>Setup Checklists</h3>
+        <p>
+          Kanban-style task boards for every phase of your build-out. Track progress
+          across locations, assign owners, set deadlines, and never miss a
+          compliance milestone.
+        </p>
+      </div>
+    </section>
+
+    <!-- Trust section -->
+    <section class="landing-trust">
+      <p class="landing-trust-label">Aligned with trusted frameworks</p>
+      <div class="landing-trust-row">
+        <span class="landing-trust-badge">
+          <i data-lucide="shield-check" style="width:16px;height:16px"></i>
+          ONC Health IT
+        </span>
+        <span class="landing-trust-badge">
+          <i data-lucide="shield-check" style="width:16px;height:16px"></i>
+          SAFER Guides
+        </span>
+        <span class="landing-trust-badge">
+          <i data-lucide="shield-check" style="width:16px;height:16px"></i>
+          HIPAA Security
+        </span>
+        <span class="landing-trust-badge">
+          <i data-lucide="shield-check" style="width:16px;height:16px"></i>
+          MGMA Benchmarks
+        </span>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="landing-cta">
+      <h2>Ready to build with confidence?</h2>
+      <p>
+        Join the growing number of practices using De Novo NoMo to make smarter
+        technology decisions, faster.
+      </p>
+      <a href="/login.html" class="btn btn-primary btn-lg">
+        <i data-lucide="arrow-right" style="width:18px;height:18px"></i>
+        Get Started Free
+      </a>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="landing-footer">
+    &copy; 2026 De Novo NoMo. All rights reserved.
+  </footer>
+
+  <script>
+    // Initialize Lucide icons
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    });
+  </script>
+</body>
+</html>

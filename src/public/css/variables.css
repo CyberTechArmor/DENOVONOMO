@@ -1,0 +1,65 @@
+/* ==========================================================================
+   De Novo NoMo — Design Tokens (CSS Custom Properties)
+   ========================================================================== */
+
+:root {
+  /* Primary — deep slate blue */
+  --color-primary-50: #f0f4f8;
+  --color-primary-100: #d9e2ec;
+  --color-primary-200: #bcccdc;
+  --color-primary-300: #9fb3c8;
+  --color-primary-500: #627d98;
+  --color-primary-700: #334e68;
+  --color-primary-900: #102a43;
+
+  /* Accent — warm amber */
+  --color-accent-400: #f0b429;
+  --color-accent-500: #de911d;
+  --color-accent-600: #cb6e17;
+
+  /* Semantic */
+  --color-success: #27ab83;
+  --color-warning: #e9b949;
+  --color-error: #e12d39;
+  --color-info: #2680c2;
+
+  /* Neutral */
+  --color-bg: #ffffff;
+  --color-bg-subtle: #f7f9fc;
+  --color-border: #e4e7eb;
+  --color-text: #243b53;
+  --color-text-muted: #829ab1;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(16, 42, 67, 0.05);
+  --shadow-md: 0 4px 6px rgba(16, 42, 67, 0.07);
+  --shadow-lg: 0 10px 15px rgba(16, 42, 67, 0.1);
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  /* Typography */
+  --font-heading: 'DM Sans', sans-serif;
+  --font-body: 'IBM Plex Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --text-base: 15px;
+  --line-height: 1.6;
+
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-default: 6px;
+  --radius-card: 8px;
+  --radius-modal: 12px;
+
+  /* Sidebar */
+  --sidebar-width: 240px;
+  --sidebar-collapsed: 56px;
+}
