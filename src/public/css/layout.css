@@ -97,6 +97,18 @@
   margin-left: 0;
 }
 
+/* Rotate chevron icon when collapsed to indicate "expand" */
+.sidebar.is-collapsed .sidebar-toggle svg {
+  transform: rotate(180deg);
+}
+
+/* Center logo in collapsed header */
+.sidebar.is-collapsed .sidebar-header {
+  justify-content: center;
+  padding: var(--space-4) var(--space-2);
+  gap: 0;
+}
+
 /* ---------- Sidebar Navigation ---------- */
 .sidebar-nav {
   display: flex;

@@ -60,11 +60,10 @@ function locationsPage() {
         `}
       </div>`;
 
-    // Add location button handler
-    const addBtn = el.querySelector('#add-location-btn') || el.querySelector('#add-location-btn2');
-    if (addBtn) {
-      addBtn.addEventListener('click', () => showAddLocationModal());
-    }
+    // Add location button handler(s)
+    el.querySelectorAll('#add-location-btn, #add-location-btn2').forEach(btn => {
+      btn.addEventListener('click', () => showAddLocationModal());
+    });
 
     // Card click
     el.querySelectorAll('[data-loc-id]').forEach(card => {
@@ -257,12 +256,23 @@ function setupSidebar() {
   const hamburger = document.getElementById('topbar-hamburger');
   const overlay = document.getElementById('sidebar-overlay');
 
+  function toggleSidebar() {
+    sidebar.classList.toggle('is-collapsed');
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) mainContent.classList.toggle('sidebar-is-collapsed');
+  }
+
   if (toggle && sidebar) {
-    toggle.addEventListener('click', () => {
-      sidebar.classList.toggle('is-collapsed');
-      // Also update main content area
-      const mainContent = document.querySelector('.main-content');
-      if (mainContent) mainContent.classList.toggle('sidebar-is-collapsed');
+    toggle.addEventListener('click', toggleSidebar);
+  }
+
+  // Allow clicking the logo to expand when collapsed
+  const logo = document.querySelector('.sidebar-logo');
+  if (logo && sidebar) {
+    logo.addEventListener('click', () => {
+      if (sidebar.classList.contains('is-collapsed')) {
+        toggleSidebar();
+      }
     });
   }
 
@@ -277,6 +287,14 @@ function setupSidebar() {
     overlay.addEventListener('click', () => {
       sidebar.classList.remove('mobile-open');
       overlay.classList.remove('visible');
+    });
+  }
+
+  // Sidebar user button opens profile
+  const sidebarUser = document.getElementById('sidebar-user');
+  if (sidebarUser) {
+    sidebarUser.addEventListener('click', () => {
+      window.location.hash = '/profile';
     });
   }
 }
