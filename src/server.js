@@ -18,6 +18,9 @@ const apiRouter = require('./routes/api');
 
 const app = express();
 
+// Trust first proxy (nginx) so secure cookies and X-Forwarded-Proto work
+app.set('trust proxy', 1);
+
 // ---------------------------------------------------------------------------
 // Security headers via helmet
 // ---------------------------------------------------------------------------
