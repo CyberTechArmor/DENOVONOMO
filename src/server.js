@@ -36,7 +36,7 @@ app.use(
         ],
         fontSrc: ["'self'", 'https://fonts.gstatic.com', 'https://cdnjs.cloudflare.com'],
         imgSrc: ["'self'", 'data:'],
-        connectSrc: ["'self'", 'wss:', 'ws:'],
+        connectSrc: ["'self'", 'wss:', 'ws:', 'https://unpkg.com'],
       },
     },
   })
