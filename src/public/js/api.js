@@ -24,8 +24,7 @@ async function api(endpoint, options = {}) {
     throw new Error('Unauthorized');
   }
   if (response.status === 403) {
-    showToast('Access denied', 'error');
-    throw new Error('Forbidden');
+    throw new Error('Access denied');
   }
   if (!response.ok) {
     const err = await response.json().catch(() => ({ error: 'Request failed' }));

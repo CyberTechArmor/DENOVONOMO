@@ -94,19 +94,19 @@
 }
 
 .sidebar.is-collapsed .sidebar-toggle {
-  margin-left: 0;
+  display: none;
 }
 
-/* Rotate chevron icon when collapsed to indicate "expand" */
-.sidebar.is-collapsed .sidebar-toggle svg {
-  transform: rotate(180deg);
-}
-
-/* Center logo in collapsed header */
+/* Center logo in collapsed header and make it clickable to expand */
 .sidebar.is-collapsed .sidebar-header {
   justify-content: center;
   padding: var(--space-4) var(--space-2);
   gap: 0;
+  cursor: pointer;
+}
+
+.sidebar.is-collapsed .sidebar-logo {
+  cursor: pointer;
 }
 
 /* ---------- Sidebar Navigation ---------- */

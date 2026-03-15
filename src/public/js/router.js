@@ -42,26 +42,22 @@ class Router {
 
   updateActiveNav(hash) {
     document.querySelectorAll('.nav-item').forEach(item => {
-      item.classList.toggle('active', item.dataset.route === hash || hash.startsWith(item.dataset.route + '/'));
+      const route = item.dataset.route || '';
+      // hash is like "/dashboard", route is like "dashboard" (from data-route attr)
+      const hashRoute = hash.replace(/^\//, '');
+      const isActive = hashRoute === route || hashRoute.startsWith(route + '/');
+      item.classList.toggle('is-active', isActive);
     });
   }
 
   updateBreadcrumbs(hash) {
-    const breadcrumb = document.getElementById('breadcrumbs');
-    if (!breadcrumb) return;
+    const el = document.getElementById('breadcrumb-current');
+    if (!el) return;
     const parts = hash.split('/').filter(Boolean);
-    let html = '<a href="#/dashboard" class="breadcrumb-item">Home</a>';
-    let path = '';
-    parts.forEach((part, i) => {
-      path += '/' + part;
-      const label = part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, ' ');
-      if (i === parts.length - 1) {
-        html += ` <span class="breadcrumb-sep">/</span> <span class="breadcrumb-item active">${label}</span>`;
-      } else {
-        html += ` <span class="breadcrumb-sep">/</span> <a href="#${path}" class="breadcrumb-item">${label}</a>`;
-      }
-    });
-    breadcrumb.innerHTML = html;
+    // Show the last meaningful segment as the current breadcrumb
+    const last = parts[parts.length - 1] || 'Dashboard';
+    const label = last.charAt(0).toUpperCase() + last.slice(1).replace(/-/g, ' ');
+    el.textContent = label;
   }
 }
 
