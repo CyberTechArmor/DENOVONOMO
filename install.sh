@@ -241,8 +241,7 @@ if nginx -t 2>/dev/null; then
     nginx -s reload 2>/dev/null || systemctl reload nginx 2>/dev/null || true
     success "nginx configuration tested and reloaded."
 else
-    warn "nginx config test failed (likely because TLS certs are not yet present)."
-    warn "nginx will be reloaded after TLS setup or you can reload manually."
+    warn "nginx config test failed. Check /etc/nginx/sites-available/denovonomo.conf"
 fi
 
 # ---------------------------------------------------------------------------
@@ -270,7 +269,15 @@ if [[ "${SETUP_TLS,,}" == "y" || "${SETUP_TLS,,}" == "yes" ]]; then
 
     success "TLS certificate obtained and nginx configured for HTTPS."
 
-    # Reload nginx after certbot has modified the config
+    # Add ssl-params snippet to the certbot-managed SSL block if available
+    NGINX_CONF="/etc/nginx/sites-available/denovonomo.conf"
+    if [[ -f /etc/nginx/snippets/ssl-params.conf ]] && ! grep -q "ssl-params.conf" "$NGINX_CONF"; then
+        # Insert the include after the ssl_certificate_key line that certbot added
+        sed -i '/ssl_certificate_key/a\    include /etc/nginx/snippets/ssl-params.conf;' "$NGINX_CONF"
+        success "SSL hardening params added to nginx config."
+    fi
+
+    # Reload nginx after modifications
     nginx -t && { nginx -s reload 2>/dev/null || systemctl reload nginx 2>/dev/null || true; }
     success "nginx reloaded with TLS."
 else
