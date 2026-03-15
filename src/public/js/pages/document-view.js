@@ -22,6 +22,7 @@ export default function documentViewPage(params) {
   let diffVersionB = null;
   let shareManagerInstance = null;
   let destroyed = false;
+  let docId = params.id; // may be slug initially, updated to UUID after load
 
   function renderLoading() {
     container.innerHTML = `
@@ -99,7 +100,7 @@ export default function documentViewPage(params) {
             </div>
           </div>
           <div class="flex gap-2">
-            ${isEditor ? `<a href="#/documents/${params.id}/edit" class="btn btn-primary">Edit</a>` : ''}
+            ${isEditor ? `<a href="#/documents/${docId}/edit" class="btn btn-primary">Edit</a>` : ''}
             <button class="btn btn-secondary" id="docview-share-btn">Share</button>
             <button class="btn btn-secondary" id="docview-print-btn">Print</button>
             <button class="btn btn-secondary" id="docview-pdf-btn">PDF</button>
@@ -235,7 +236,7 @@ export default function documentViewPage(params) {
     }
 
     try {
-      const data = await api.get(`/documents/${params.id}/versions`);
+      const data = await api.get(`/documents/${docId}/versions`);
       versions = data.versions || data || [];
 
       // Populate selects
@@ -285,7 +286,7 @@ export default function documentViewPage(params) {
 
   async function loadVersion(version) {
     try {
-      const data = await api.get(`/documents/${params.id}/versions/${version}`);
+      const data = await api.get(`/documents/${docId}/versions/${version}`);
       const content = data.content || data.document?.content || '';
       const contentEl = container.querySelector('#docview-content');
       if (contentEl) {
@@ -317,7 +318,7 @@ export default function documentViewPage(params) {
     diffContainer.innerHTML = '<div class="text-sm text-muted">Loading diff...</div>';
 
     try {
-      const data = await api.get(`/documents/${params.id}/diff?from=${vA}&to=${vB}`);
+      const data = await api.get(`/documents/${docId}/diff?from=${vA}&to=${vB}`);
       const diffData = data.diff || data.changes || [];
 
       if (diffData.length === 0) {
@@ -362,7 +363,7 @@ export default function documentViewPage(params) {
     if (mount) {
       shareManagerInstance = createShareManager(mount, {
         resourceType: 'document',
-        resourceId: params.id
+        resourceId: docId
       });
     }
   }
@@ -375,7 +376,7 @@ export default function documentViewPage(params) {
     }
 
     try {
-      const response = await fetch(`/api/documents/${params.id}/pdf`);
+      const response = await fetch(`/api/documents/${docId}/pdf`);
       if (!response.ok) throw new Error('PDF generation failed');
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
@@ -400,6 +401,7 @@ export default function documentViewPage(params) {
     try {
       const data = await api.get(`/documents/${params.id}`);
       doc = data.document || data;
+      if (doc.id) docId = doc.id; // use real UUID for subsequent API calls
       render();
     } catch (err) {
       container.innerHTML = `

@@ -141,6 +141,8 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
+    // Support lookup by UUID or slug
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
     const result = await query(
       `SELECT d.*, dv.content_md, dv.version_number, dv.status AS version_status,
               dv.change_summary, dv.created_at AS version_created_at,
@@ -148,7 +150,7 @@ router.get('/:id', async (req, res) => {
        FROM documents d
        LEFT JOIN document_versions dv ON dv.id = d.current_version_id
        LEFT JOIN users u ON u.id = dv.author_id
-       WHERE d.id = $1`,
+       WHERE ${isUuid ? 'd.id' : 'd.slug'} = $1`,
       [id]
     );
 
