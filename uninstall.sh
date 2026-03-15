@@ -58,27 +58,33 @@ fi
 echo ""
 
 # ---------------------------------------------------------------------------
-# 1. Stop and remove containers
-# ---------------------------------------------------------------------------
-info "Stopping and removing containers..."
-if docker compose ps -q &>/dev/null; then
-    docker compose down
-    success "Containers stopped and removed."
-else
-    warn "No running containers found (or docker compose not available)."
-fi
-
-# ---------------------------------------------------------------------------
-# 2. Optionally remove volumes (database data)
+# 1. Ask about volumes before tearing down
 # ---------------------------------------------------------------------------
 echo ""
 read -rp "Remove Docker volumes (deletes all database data)? [y/N]: " REMOVE_VOLUMES
-if [[ "${REMOVE_VOLUMES,,}" == "y" || "${REMOVE_VOLUMES,,}" == "yes" ]]; then
-    info "Removing volumes..."
-    docker compose down -v 2>/dev/null || true
-    success "Volumes removed."
+
+# ---------------------------------------------------------------------------
+# 2. Stop and remove containers (and volumes if requested)
+# ---------------------------------------------------------------------------
+info "Stopping and removing containers..."
+if docker compose ps -q &>/dev/null 2>&1 || docker compose config -q &>/dev/null 2>&1; then
+    if [[ "${REMOVE_VOLUMES,,}" == "y" || "${REMOVE_VOLUMES,,}" == "yes" ]]; then
+        docker compose down -v
+        success "Containers stopped, removed, and volumes deleted."
+    else
+        docker compose down
+        success "Containers stopped and removed."
+        warn "Volumes preserved. Note: on reinstall you must use the same DB password"
+        warn "or run 'docker compose down -v' first, since PostgreSQL only sets"
+        warn "credentials on initial volume creation."
+    fi
 else
-    warn "Volumes preserved. Data can be reused on reinstall."
+    warn "No running containers found (or docker compose not available)."
+    # Still try to remove volumes if requested
+    if [[ "${REMOVE_VOLUMES,,}" == "y" || "${REMOVE_VOLUMES,,}" == "yes" ]]; then
+        docker volume rm "$(basename "$SCRIPT_DIR")_pgdata" 2>/dev/null || true
+        success "Attempted volume cleanup."
+    fi
 fi
 
 # ---------------------------------------------------------------------------
