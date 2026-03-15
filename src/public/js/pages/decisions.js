@@ -449,7 +449,7 @@ export default function decisionsPage(params) {
         selected_option: selectedOptionName,
         status: status === 'na' ? 'not_applicable' : status,
         reasoning,
-        vendors: vendor ? JSON.stringify([vendor]) : null,
+        vendors: vendor ? [vendor] : null,
         estimated_cost_onetime: costOverride ? parseFloat(costOverride) : null,
       };
 

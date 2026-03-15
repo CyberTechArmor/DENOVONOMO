@@ -266,13 +266,32 @@ function setupSidebar() {
     toggle.addEventListener('click', toggleSidebar);
   }
 
-  // Allow clicking the logo to expand when collapsed
-  const logo = document.querySelector('.sidebar-logo');
-  if (logo && sidebar) {
-    logo.addEventListener('click', () => {
+  // Allow clicking the sidebar header (logo area) to expand when collapsed
+  const sidebarHeader = document.querySelector('.sidebar-header');
+  if (sidebarHeader && sidebar) {
+    sidebarHeader.addEventListener('click', (e) => {
       if (sidebar.classList.contains('is-collapsed')) {
+        e.preventDefault();
+        e.stopPropagation();
         toggleSidebar();
       }
+    });
+  }
+
+  // Also allow clicking any nav icon to expand when collapsed
+  if (sidebar) {
+    sidebar.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        if (sidebar.classList.contains('is-collapsed')) {
+          e.preventDefault();
+          toggleSidebar();
+          // Navigate after expanding
+          const href = item.getAttribute('href');
+          if (href) {
+            setTimeout(() => { window.location.hash = href.replace('#', ''); }, 300);
+          }
+        }
+      });
     });
   }
 
