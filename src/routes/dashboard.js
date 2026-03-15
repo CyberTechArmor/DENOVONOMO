@@ -57,10 +57,47 @@ router.get('/', async (req, res) => {
        FROM checklist_items`
     );
 
+    // Build status breakdown object from rows
+    const statusBreakdown = {};
+    let totalLocations = 0;
+    for (const row of locationsByStatus.rows) {
+      statusBreakdown[row.status] = parseInt(row.count, 10) || 0;
+      totalLocations += parseInt(row.count, 10) || 0;
+    }
+
+    const costs = totalCosts.rows[0] || {};
+    const avgDays = avgTransition.rows[0]
+      ? parseFloat(avgTransition.rows[0].avg_transition_days) || 0
+      : 0;
+
+    // Fetch locations list for the frontend
+    const locationsResult = await query(
+      `SELECT l.id, l.name, l.status, l.address, l.location_type,
+              o.name AS organization_name
+       FROM locations l
+       LEFT JOIN organizations o ON o.id = l.organization_id
+       ORDER BY l.created_at DESC`
+    );
+
+    // Fetch organizations for filter dropdown
+    const orgsResult = await query(
+      `SELECT id, name FROM organizations ORDER BY name`
+    );
+
     res.json({
-      locations_by_status: locationsByStatus.rows,
-      total_costs: totalCosts.rows[0],
-      avg_transition_days: avgTransition.rows[0] ? avgTransition.rows[0].avg_transition_days : null,
+      summary: {
+        totalLocations,
+        totalImplementationCost: parseFloat(costs.one_time_total) || 0,
+        monthlyOperationalCost: parseFloat(costs.monthly_total) || 0,
+        avgTransitionDays: Math.round(avgDays),
+      },
+      locations: locationsResult.rows,
+      statusBreakdown,
+      pipeline: statusBreakdown,
+      costTimeline: [],
+      costByLocation: [],
+      revenueVsCost: [],
+      organizations: orgsResult.rows,
       decision_stats: decisionStats.rows[0],
       checklist_stats: checklistStats.rows[0],
     });

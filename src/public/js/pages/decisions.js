@@ -55,7 +55,7 @@ export default function decisionsPage(params) {
       name,
       items,
       decidedCount: items.filter(item => {
-        const d = decisions.find(dec => dec.template_id === item.id);
+        const d = decisions.find(dec => dec.template_id === item.id || dec.item_key === item.id);
         return d && d.status !== 'pending';
       }).length
     }));
@@ -69,13 +69,17 @@ export default function decisionsPage(params) {
   function getCurrentDecision() {
     const tmpl = getCurrentTemplate();
     if (!tmpl) return null;
-    return decisions.find(d => d.template_id === tmpl.id) || null;
+    return decisions.find(d => d.template_id === tmpl.id || d.item_key === tmpl.id) || null;
   }
 
   function getOverallProgress() {
     const total = templates.length;
-    const decided = decisions.filter(d => d.status !== 'pending').length;
-    return total > 0 ? Math.round((decided / total) * 100) : 0;
+    if (total === 0) return 0;
+    // Count templates that have a matching non-pending decision
+    const decided = templates.filter(t =>
+      decisions.some(d => (d.template_id === t.id || d.item_key === t.id) && d.status !== 'pending')
+    ).length;
+    return Math.round((decided / total) * 100);
   }
 
   function render() {
@@ -170,7 +174,7 @@ export default function decisionsPage(params) {
                   <div class="text-sm font-medium mb-3">Options</div>
                   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--space-3)">
                     ${(tmpl.options || []).map((opt, optIdx) => {
-                      const isSelected = decision?.selected_option_id === opt.id || decision?.selected_option === opt.name;
+                      const isSelected = decision?.selected_option_id === opt.id || decision?.selected_option === opt.name || decision?.selected_option === opt.id;
                       return `
                         <div class="dec-option-card" data-option-idx="${optIdx}" data-option-id="${opt.id}" style="
                           border:2px solid ${isSelected ? 'var(--color-primary)' : 'var(--color-border)'};
@@ -293,8 +297,8 @@ export default function decisionsPage(params) {
             </thead>
             <tbody>
               ${templates.map(tmpl => {
-                const dec = decisions.find(d => d.template_id === tmpl.id);
-                const selectedOpt = dec ? (tmpl.options || []).find(o => o.id === dec.selected_option_id) : null;
+                const dec = decisions.find(d => d.template_id === tmpl.id || d.item_key === tmpl.id);
+                const selectedOpt = dec ? (tmpl.options || []).find(o => o.id === dec.selected_option_id || o.name === dec.selected_option || o.id === dec.selected_option) : null;
                 const status = dec?.status || 'pending';
                 const statusBadge = status === 'decided' ? 'badge-success'
                   : status === 'skipped' ? 'badge-warning'
@@ -425,20 +429,34 @@ export default function decisionsPage(params) {
       return;
     }
 
+    // Find selected option name for the backend
+    let selectedOptionName = null;
+    if (selectedOptionId && tmpl.options) {
+      const opt = tmpl.options.find(o => o.id === selectedOptionId);
+      if (opt) selectedOptionName = opt.name;
+    }
+
+    // Extract category and subcategory from template category (format: "Category — Subcategory")
+    const catParts = (tmpl.category || '').split(' — ');
+    const templateCategory = catParts[0] || 'General';
+    const templateSubcategory = catParts[1] || null;
+
     try {
       const payload = {
-        template_id: tmpl.id,
-        selected_option_id: selectedOptionId,
-        status,
+        item_key: tmpl.id,
+        category: templateCategory,
+        subcategory: templateSubcategory,
+        selected_option: selectedOptionName,
+        status: status === 'na' ? 'not_applicable' : status,
         reasoning,
-        vendor: vendor || null,
-        cost_override: costOverride ? parseFloat(costOverride) : null
+        vendors: vendor ? JSON.stringify([vendor]) : null,
+        estimated_cost_onetime: costOverride ? parseFloat(costOverride) : null,
       };
 
       const result = await api.post(`/decisions/location/${locationId}`, payload);
 
       // Update local decisions
-      const existing = decisions.findIndex(d => d.template_id === tmpl.id);
+      const existing = decisions.findIndex(d => d.template_id === tmpl.id || d.item_key === tmpl.id);
       const newDec = result.decision || result || payload;
       if (existing >= 0) {
         decisions[existing] = { ...decisions[existing], ...newDec };

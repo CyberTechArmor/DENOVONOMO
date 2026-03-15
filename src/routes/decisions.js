@@ -162,10 +162,39 @@ const DECISION_TREE_TEMPLATE = {
 };
 
 /**
- * GET /templates - Return the full decision tree template
+ * Flatten the nested decision tree into a flat array of template items
+ * that the frontend decision engine expects.
+ */
+function flattenTemplates() {
+  const templates = [];
+  for (const cat of DECISION_TREE_TEMPLATE.categories) {
+    for (const subcat of cat.subcategories) {
+      for (const item of subcat.items) {
+        templates.push({
+          id: item.item_key,
+          category: `${cat.name} — ${subcat.name}`,
+          question: item.label,
+          title: item.label,
+          options: (item.options || []).map((opt, idx) => ({
+            id: `${item.item_key}_opt_${idx}`,
+            name: opt.option_name,
+            type: opt.option_type,
+            description: opt.description || '',
+            benefits: opt.benefits || [],
+            risks: opt.risks || [],
+          })),
+        });
+      }
+    }
+  }
+  return templates;
+}
+
+/**
+ * GET /templates - Return the flattened decision templates
  */
 router.get('/templates', (req, res) => {
-  res.json({ template: DECISION_TREE_TEMPLATE });
+  res.json({ templates: flattenTemplates() });
 });
 
 /**
