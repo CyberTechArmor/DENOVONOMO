@@ -77,7 +77,7 @@ export default function documentViewPage(params) {
   function render() {
     if (destroyed || !doc) return;
 
-    const renderedHtml = renderMarkdown(doc.content || '');
+    const renderedHtml = renderMarkdown(doc.content_md || doc.content || '');
     const { items: tocItems, html: htmlWithIds } = generateTOC(renderedHtml);
     const isEditor = auth.isEditor();
     const currentVersion = doc.version || doc.current_version || 1;

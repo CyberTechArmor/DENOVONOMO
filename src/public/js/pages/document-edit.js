@@ -92,7 +92,7 @@ export default function documentEditPage(params) {
                 border:none;outline:none;resize:vertical;font-family:monospace;
                 font-size:0.875rem;line-height:1.6;background:transparent;
                 color:var(--color-text);
-              " spellcheck="true" placeholder="Write markdown here...">${escapeHtml(doc.content || '')}</textarea>
+              " spellcheck="true" placeholder="Write markdown here...">${escapeHtml(doc.content_md || doc.content || '')}</textarea>
             </div>
             <div id="edit-preview-pane" style="flex:1;padding:var(--space-4);overflow-y:auto;line-height:1.8;${previewMode ? '' : 'display:none;'}border-left:1px solid var(--color-border)">
             </div>
@@ -247,7 +247,7 @@ export default function documentEditPage(params) {
       const status = isSuperAdmin ? 'approved' : 'pending_review';
 
       await api.post(`/documents/${params.id}/versions`, {
-        content,
+        content_md: content,
         change_summary: changeSummary,
         status
       });
@@ -341,7 +341,7 @@ export default function documentEditPage(params) {
     try {
       const data = await api.get(`/documents/${params.id}`);
       doc = data.document || data;
-      originalContent = doc.content || '';
+      originalContent = doc.content_md || doc.content || '';
       render();
     } catch (err) {
       container.innerHTML = `

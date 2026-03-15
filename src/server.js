@@ -100,7 +100,7 @@ app.use((req, res, next) => {
 // ---------------------------------------------------------------------------
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10,
+  max: 30,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests, please try again later' },

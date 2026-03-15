@@ -75,8 +75,8 @@ router.post('/', requireRole('editor'), async (req, res) => {
   try {
     const { name, organization_id, address, location_type, target_go_live_date } = req.body;
 
-    if (!name || !organization_id) {
-      return res.status(400).json({ error: 'name and organization_id are required' });
+    if (!name) {
+      return res.status(400).json({ error: 'name is required' });
     }
 
     const validTypes = ['de_novo', 'expansion'];
@@ -84,10 +84,20 @@ router.post('/', requireRole('editor'), async (req, res) => {
       return res.status(400).json({ error: `Invalid location_type. Must be one of: ${validTypes.join(', ')}` });
     }
 
-    // Verify organization exists
-    const org = await query('SELECT id FROM organizations WHERE id = $1', [organization_id]);
-    if (org.rows.length === 0) {
-      return res.status(404).json({ error: 'Organization not found' });
+    // Use provided org or fall back to first available org
+    let orgId = organization_id || null;
+    if (!orgId) {
+      const defaultOrg = await query('SELECT id FROM organizations ORDER BY created_at ASC LIMIT 1');
+      if (defaultOrg.rows.length > 0) {
+        orgId = defaultOrg.rows[0].id;
+      }
+    }
+
+    if (orgId) {
+      const org = await query('SELECT id FROM organizations WHERE id = $1', [orgId]);
+      if (org.rows.length === 0) {
+        return res.status(404).json({ error: 'Organization not found' });
+      }
     }
 
     const id = uuidv4();
@@ -95,10 +105,10 @@ router.post('/', requireRole('editor'), async (req, res) => {
       `INSERT INTO locations (id, name, organization_id, address, location_type, target_go_live_date)
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [id, name, organization_id, address || null, location_type || 'de_novo', target_go_live_date || null]
+      [id, name, orgId, address || null, location_type || 'de_novo', target_go_live_date || null]
     );
 
-    await logAudit(req.user.id, 'create', 'location', id, { name, organization_id }, req.ip);
+    await logAudit(req.user.id, 'create', 'location', id, { name, organization_id: orgId }, req.ip);
 
     res.status(201).json({ location: result.rows[0] });
   } catch (err) {

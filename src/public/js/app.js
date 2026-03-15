@@ -259,7 +259,10 @@ function setupSidebar() {
 
   if (toggle && sidebar) {
     toggle.addEventListener('click', () => {
-      sidebar.classList.toggle('collapsed');
+      sidebar.classList.toggle('is-collapsed');
+      // Also update main content area
+      const mainContent = document.querySelector('.main-content');
+      if (mainContent) mainContent.classList.toggle('sidebar-is-collapsed');
     });
   }
 
