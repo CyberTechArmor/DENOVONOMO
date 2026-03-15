@@ -8,7 +8,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const PgSession = require('connect-pg-simple')(session);
-const csurf = require('csurf');
+const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
 const { WebSocketServer } = require('ws');
 
@@ -73,13 +73,23 @@ const sessionMiddleware = session({
 app.use(sessionMiddleware);
 
 // ---------------------------------------------------------------------------
-// CSRF protection (cookie-based)
+// CSRF protection (double-submit cookie pattern)
 // ---------------------------------------------------------------------------
-const csrfProtection = csurf({ cookie: true });
-app.use(csrfProtection);
-
 app.get('/api/csrf-token', (req, res) => {
-  res.json({ csrfToken: req.csrfToken() });
+  const token = crypto.randomBytes(32).toString('hex');
+  req.session.csrfToken = token;
+  res.json({ csrfToken: token });
+});
+
+app.use((req, res, next) => {
+  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
+  // Skip CSRF for MCP endpoint (uses Bearer token auth)
+  if (req.path.startsWith('/api/mcp')) return next();
+  const token = req.headers['x-csrf-token'] || req.body?._csrf;
+  if (!token || token !== req.session?.csrfToken) {
+    return res.status(403).json({ error: 'Invalid CSRF token' });
+  }
+  next();
 });
 
 // ---------------------------------------------------------------------------

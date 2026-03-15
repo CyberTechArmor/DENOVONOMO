@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="/css/pages.css">
 
   <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer crossorigin></script>
 </head>
 <body class="login-page">
 
@@ -34,7 +34,7 @@
     <div id="login-error" class="login-error" role="alert" aria-live="polite"></div>
 
     <!-- Login form -->
-    <form id="login-form" class="login-form" novalidate>
+    <form id="login-form" class="login-form" method="POST" action="javascript:void(0)" novalidate>
       <input type="hidden" id="csrf-token" name="_csrf" value="">
 
       <!-- Email -->
@@ -100,6 +100,6 @@
     </div>
   </div>
 
-  <script src="/js/login.js" defer></script>
+  <script src="/js/login.js"></script>
 </body>
 </html>
