@@ -237,10 +237,40 @@ async function createDefaultAdmin() {
 }
 
 // ---------------------------------------------------------------------------
+// Health endpoint
+// ---------------------------------------------------------------------------
+app.get('/health', async (req, res) => {
+  try {
+    await query('SELECT 1');
+    res.json({ status: 'ok' });
+  } catch (err) {
+    res.status(503).json({ status: 'error', message: err.message });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Wait for database to be ready
+// ---------------------------------------------------------------------------
+async function waitForDatabase(maxRetries = 20, delay = 3000) {
+  for (let i = 1; i <= maxRetries; i++) {
+    try {
+      await query('SELECT 1');
+      console.log('Database connection established');
+      return;
+    } catch (err) {
+      console.log(`Waiting for database... attempt ${i}/${maxRetries} (${err.message})`);
+      if (i === maxRetries) throw new Error('Database not available after maximum retries');
+      await new Promise((r) => setTimeout(r, delay));
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Start
 // ---------------------------------------------------------------------------
 async function start() {
   try {
+    await waitForDatabase();
     await runMigrations();
     await createDefaultAdmin();
 
