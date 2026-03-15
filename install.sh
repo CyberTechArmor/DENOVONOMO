@@ -209,12 +209,101 @@ if [[ ! -f "$NGINX_CONF_TEMPLATE" ]]; then
     fatal "nginx config template not found at ${NGINX_CONF_TEMPLATE}"
 fi
 
-# Replace placeholders __DOMAIN__ and __APP_PORT__
+# Check for existing TLS certificates
+CERT_PATH="/etc/letsencrypt/live/${DOMAIN}/fullchain.pem"
+KEY_PATH="/etc/letsencrypt/live/${DOMAIN}/privkey.pem"
+HAS_EXISTING_CERTS=false
+
+if [[ -f "$CERT_PATH" && -f "$KEY_PATH" ]]; then
+    HAS_EXISTING_CERTS=true
+    success "Found existing TLS certificates for ${DOMAIN}"
+fi
+
+# Generate nginx config from template
 sed -e "s/__DOMAIN__/${DOMAIN}/g" \
     -e "s/__APP_PORT__/${APP_PORT}/g" \
     "$NGINX_CONF_TEMPLATE" > "$NGINX_CONF_AVAILABLE"
 
-success "nginx config written to ${NGINX_CONF_AVAILABLE}"
+# If existing certs found, add SSL server block
+if [[ "$HAS_EXISTING_CERTS" == true ]]; then
+    cat >> "$NGINX_CONF_AVAILABLE" <<SSLBLOCK
+
+server {
+    listen 443 ssl http2;
+    server_name ${DOMAIN};
+
+    ssl_certificate ${CERT_PATH};
+    ssl_certificate_key ${KEY_PATH};
+    include /etc/nginx/snippets/ssl-params.conf;
+
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+    gzip_min_length 256;
+    gzip_vary on;
+
+    location / {
+        proxy_pass http://127.0.0.1:${APP_PORT};
+        proxy_http_version 1.1;
+
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+
+        # WebSocket support
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        proxy_read_timeout 86400;
+    }
+}
+SSLBLOCK
+
+    # Also add HTTP -> HTTPS redirect
+    sed -i '/listen 80;/a\    # Redirect HTTP to HTTPS\n    return 301 https://$host$request_uri;' "$NGINX_CONF_AVAILABLE"
+    # Remove the proxy block from the HTTP server since we're redirecting
+    # We do this by replacing the HTTP server block entirely
+    cat > "$NGINX_CONF_AVAILABLE" <<FULLCONF
+server {
+    listen 80;
+    server_name ${DOMAIN};
+    return 301 https://\$host\$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name ${DOMAIN};
+
+    ssl_certificate ${CERT_PATH};
+    ssl_certificate_key ${KEY_PATH};
+    include /etc/nginx/snippets/ssl-params.conf;
+
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+    gzip_min_length 256;
+    gzip_vary on;
+
+    location / {
+        proxy_pass http://127.0.0.1:${APP_PORT};
+        proxy_http_version 1.1;
+
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+
+        # WebSocket support
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        proxy_read_timeout 86400;
+    }
+}
+FULLCONF
+    success "nginx config written with SSL (using existing certificates)"
+else
+    success "nginx config written (HTTP only)"
+fi
 
 # Symlink into sites-enabled
 if [[ -L "$NGINX_CONF_ENABLED" || -f "$NGINX_CONF_ENABLED" ]]; then
@@ -236,7 +325,7 @@ if [[ -f "${SCRIPT_DIR}/nginx/ssl-params.conf" ]]; then
     success "SSL params snippet installed to /etc/nginx/snippets/ssl-params.conf"
 fi
 
-# Test nginx config — allow failure if TLS certs don't exist yet
+# Test and reload nginx
 if nginx -t 2>/dev/null; then
     nginx -s reload 2>/dev/null || systemctl reload nginx 2>/dev/null || true
     success "nginx configuration tested and reloaded."
@@ -245,43 +334,46 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 7. Optional TLS via Certbot
+# 7. Optional TLS via Certbot (skip if certs already exist)
 # ---------------------------------------------------------------------------
-echo ""
-read -rp "Set up TLS with Let's Encrypt (certbot)? [y/N]: " SETUP_TLS
-if [[ "${SETUP_TLS,,}" == "y" || "${SETUP_TLS,,}" == "yes" ]]; then
-    # Install certbot if not present
-    if ! command -v certbot &>/dev/null; then
-        info "Installing certbot and nginx plugin..."
-        apt-get update -qq
-        apt-get install -y -qq certbot python3-certbot-nginx >/dev/null
-        success "certbot installed."
-    else
-        success "certbot is already installed."
-    fi
-
-    info "Requesting TLS certificate for ${DOMAIN}..."
-    certbot --nginx \
-        -d "$DOMAIN" \
-        --non-interactive \
-        --agree-tos \
-        -m "$ADMIN_EMAIL"
-
-    success "TLS certificate obtained and nginx configured for HTTPS."
-
-    # Add ssl-params snippet to the certbot-managed SSL block if available
-    NGINX_CONF="/etc/nginx/sites-available/denovonomo.conf"
-    if [[ -f /etc/nginx/snippets/ssl-params.conf ]] && ! grep -q "ssl-params.conf" "$NGINX_CONF"; then
-        # Insert the include after the ssl_certificate_key line that certbot added
-        sed -i '/ssl_certificate_key/a\    include /etc/nginx/snippets/ssl-params.conf;' "$NGINX_CONF"
-        success "SSL hardening params added to nginx config."
-    fi
-
-    # Reload nginx after modifications
-    nginx -t && { nginx -s reload 2>/dev/null || systemctl reload nginx 2>/dev/null || true; }
-    success "nginx reloaded with TLS."
+if [[ "$HAS_EXISTING_CERTS" == true ]]; then
+    success "TLS already configured using existing certificates for ${DOMAIN}"
 else
-    warn "Skipping TLS setup. You can set it up later with: certbot --nginx -d ${DOMAIN}"
+    echo ""
+    read -rp "Set up TLS with Let's Encrypt (certbot)? [y/N]: " SETUP_TLS
+    if [[ "${SETUP_TLS,,}" == "y" || "${SETUP_TLS,,}" == "yes" ]]; then
+        # Install certbot if not present
+        if ! command -v certbot &>/dev/null; then
+            info "Installing certbot and nginx plugin..."
+            apt-get update -qq
+            apt-get install -y -qq certbot python3-certbot-nginx >/dev/null
+            success "certbot installed."
+        else
+            success "certbot is already installed."
+        fi
+
+        info "Requesting TLS certificate for ${DOMAIN}..."
+        certbot --nginx \
+            -d "$DOMAIN" \
+            --non-interactive \
+            --agree-tos \
+            -m "$ADMIN_EMAIL"
+
+        success "TLS certificate obtained and nginx configured for HTTPS."
+
+        # Add ssl-params snippet to the certbot-managed SSL block if available
+        NGINX_CONF="/etc/nginx/sites-available/denovonomo.conf"
+        if [[ -f /etc/nginx/snippets/ssl-params.conf ]] && ! grep -q "ssl-params.conf" "$NGINX_CONF"; then
+            sed -i '/ssl_certificate_key/a\    include /etc/nginx/snippets/ssl-params.conf;' "$NGINX_CONF"
+            success "SSL hardening params added to nginx config."
+        fi
+
+        # Reload nginx after modifications
+        nginx -t && { nginx -s reload 2>/dev/null || systemctl reload nginx 2>/dev/null || true; }
+        success "nginx reloaded with TLS."
+    else
+        warn "Skipping TLS setup. You can set it up later with: certbot --nginx -d ${DOMAIN}"
+    fi
 fi
 
 # ---------------------------------------------------------------------------
