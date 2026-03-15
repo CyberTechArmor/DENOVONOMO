@@ -400,7 +400,7 @@ export default function kanbanPage(params) {
     render();
 
     try {
-      await api.patch(`/checklists/location/${locationId}/tasks/${taskId}`, { status: newStatus });
+      await api.patch(`/checklists/${taskId}/status`, { status: newStatus });
     } catch (err) {
       task.status = oldStatus;
       render();
@@ -422,7 +422,7 @@ export default function kanbanPage(params) {
     };
 
     try {
-      await api.patch(`/checklists/location/${locationId}/tasks/${taskId}`, payload);
+      await api.put(`/checklists/${taskId}`, payload);
       const idx = tasks.findIndex(t => t.id === taskId);
       if (idx >= 0) Object.assign(tasks[idx], payload);
       showToast('Task updated', 'success');
@@ -435,7 +435,7 @@ export default function kanbanPage(params) {
 
   async function deleteTask(taskId) {
     try {
-      await api.delete(`/checklists/location/${locationId}/tasks/${taskId}`);
+      await api.delete(`/checklists/${taskId}`);
       tasks = tasks.filter(t => t.id !== taskId);
       closeDetail();
       showToast('Task deleted', 'success');
@@ -451,14 +451,13 @@ export default function kanbanPage(params) {
     if (!text) return;
 
     try {
-      await api.post(`/checklists/location/${locationId}/tasks/${taskId}/comments`, { text });
+      await api.post(`/checklists/${taskId}/comments`, { content: text });
       if (input) input.value = '';
-      // Reload task to get updated comments
-      const data = await api.get(`/checklists/location/${locationId}/tasks/${taskId}`);
-      const updatedTask = data.task || data;
+      // Reload comments
+      const data = await api.get(`/checklists/${taskId}/comments`);
       const idx = tasks.findIndex(t => t.id === taskId);
-      if (idx >= 0) tasks[idx] = { ...tasks[idx], ...updatedTask };
-      renderDetailPanel(tasks[idx] || updatedTask);
+      if (idx >= 0) tasks[idx].comments = data.comments || [];
+      renderDetailPanel(tasks[idx]);
       showToast('Comment added', 'success');
     } catch (err) {
       showToast('Failed to add comment: ' + err.message, 'error');
@@ -521,8 +520,8 @@ export default function kanbanPage(params) {
     };
 
     try {
-      const result = await api.post(`/checklists/location/${locationId}/tasks`, payload);
-      const newTask = result.task || result;
+      const result = await api.post(`/checklists/location/${locationId}`, payload);
+      const newTask = result.item || result.task || result;
       tasks.push(newTask);
       closeModal();
       showToast('Task created', 'success');
@@ -538,7 +537,7 @@ export default function kanbanPage(params) {
       if (btn) { btn.disabled = true; btn.textContent = 'Generating...'; }
 
       const result = await api.post(`/checklists/location/${locationId}/generate`, {});
-      const newTasks = result.tasks || result || [];
+      const newTasks = result.items || result.tasks || result || [];
       tasks = tasks.concat(newTasks);
       showToast(`Generated ${newTasks.length} tasks from decisions`, 'success');
       render();

@@ -297,15 +297,15 @@ function setupSidebar() {
 
   if (hamburger && sidebar) {
     hamburger.addEventListener('click', () => {
-      sidebar.classList.toggle('mobile-open');
-      overlay?.classList.toggle('visible');
+      sidebar.classList.toggle('is-open');
+      overlay?.classList.toggle('is-active');
     });
   }
 
   if (overlay) {
     overlay.addEventListener('click', () => {
-      sidebar.classList.remove('mobile-open');
-      overlay.classList.remove('visible');
+      sidebar.classList.remove('is-open');
+      overlay.classList.remove('is-active');
     });
   }
 
