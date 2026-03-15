@@ -298,6 +298,10 @@ router.post('/location/:locationId', requireRole('editor'), async (req, res) => 
       return res.status(400).json({ error: 'item_key is required' });
     }
 
+    const effectiveStatus = status || 'pending';
+    const decidedAt = effectiveStatus === 'decided' ? new Date() : null;
+    const vendorsJson = vendors != null ? JSON.stringify(vendors) : null;
+
     // Check if decision already exists for this location + item_key
     const existing = await query(
       'SELECT id FROM decisions WHERE location_id = $1 AND item_key = $2',
@@ -317,11 +321,11 @@ router.post('/location/:locationId', requireRole('editor'), async (req, res) => 
            estimated_cost_onetime = COALESCE($6, estimated_cost_onetime),
            estimated_cost_monthly = COALESCE($7, estimated_cost_monthly),
            estimated_cost_annual = COALESCE($8, estimated_cost_annual),
-           vendors = COALESCE($9, vendors),
-           status = COALESCE($10, status),
+           vendors = COALESCE($9::jsonb, vendors),
+           status = COALESCE($10::decision_status, status),
            decided_by = $11,
-           decided_at = CASE WHEN $10 = 'decided' THEN NOW() ELSE decided_at END
-         WHERE id = $12
+           decided_at = COALESCE($12, decided_at)
+         WHERE id = $13
          RETURNING *`,
         [
           category || null, subcategory || null, decision_summary || null,
@@ -329,12 +333,12 @@ router.post('/location/:locationId', requireRole('editor'), async (req, res) => 
           estimated_cost_onetime != null ? estimated_cost_onetime : null,
           estimated_cost_monthly != null ? estimated_cost_monthly : null,
           estimated_cost_annual != null ? estimated_cost_annual : null,
-          vendors ? JSON.stringify(vendors) : null,
-          status || null, req.user.id, existing.rows[0].id,
+          vendorsJson,
+          effectiveStatus, req.user.id, decidedAt, existing.rows[0].id,
         ]
       );
 
-      await logAudit(req.user.id, 'update', 'decision', existing.rows[0].id, { item_key, status }, req.ip);
+      await logAudit(req.user.id, 'update', 'decision', existing.rows[0].id, { item_key, status: effectiveStatus }, req.ip);
     } else {
       // Create new
       const id = uuidv4();
@@ -343,8 +347,7 @@ router.post('/location/:locationId', requireRole('editor'), async (req, res) => 
            decision_summary, selected_option, reasoning,
            estimated_cost_onetime, estimated_cost_monthly, estimated_cost_annual,
            vendors, status, decided_by, decided_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
-           CASE WHEN $13 = 'decided' THEN NOW() ELSE NULL END)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::jsonb, $13::decision_status, $14, $15)
          RETURNING *`,
         [
           id, locationId, category || null, subcategory || null, item_key,
@@ -352,8 +355,7 @@ router.post('/location/:locationId', requireRole('editor'), async (req, res) => 
           estimated_cost_onetime != null ? estimated_cost_onetime : null,
           estimated_cost_monthly != null ? estimated_cost_monthly : null,
           estimated_cost_annual != null ? estimated_cost_annual : null,
-          vendors ? JSON.stringify(vendors) : null,
-          status || 'pending', req.user.id,
+          vendorsJson, effectiveStatus, req.user.id, decidedAt,
         ]
       );
 
@@ -362,8 +364,8 @@ router.post('/location/:locationId', requireRole('editor'), async (req, res) => 
 
     res.status(existing.rows.length > 0 ? 200 : 201).json({ decision: result.rows[0] });
   } catch (err) {
-    console.error('Error creating/updating decision:', err.message);
-    res.status(500).json({ error: 'Failed to save decision' });
+    console.error('Error creating/updating decision:', err.message, err.stack);
+    res.status(500).json({ error: 'Failed to save decision', detail: err.message });
   }
 });
 

@@ -34,7 +34,7 @@ router.get('/', async (req, res) => {
     // Average transition time (days between transition_start_date and transition_end_date)
     const avgTransition = await query(
       `SELECT
-         AVG(EXTRACT(EPOCH FROM (transition_end_date - transition_start_date)) / 86400)::numeric(10,1) AS avg_transition_days
+         AVG(transition_end_date - transition_start_date)::numeric(10,1) AS avg_transition_days
        FROM locations
        WHERE transition_start_date IS NOT NULL AND transition_end_date IS NOT NULL`
     );
@@ -102,8 +102,8 @@ router.get('/', async (req, res) => {
       checklist_stats: checklistStats.rows[0],
     });
   } catch (err) {
-    console.error('Error fetching dashboard:', err.message);
-    res.status(500).json({ error: 'Failed to fetch dashboard data' });
+    console.error('Error fetching dashboard:', err.message, err.stack);
+    res.status(500).json({ error: 'Failed to fetch dashboard data', detail: err.message });
   }
 });
 

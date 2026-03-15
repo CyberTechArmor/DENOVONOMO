@@ -95,33 +95,35 @@ export default function decisionsPage(params) {
     const progress = getOverallProgress();
 
     container.innerHTML = `
-      <div class="p-6">
-        <div class="flex justify-between items-center mb-5">
+      <div style="display:flex;flex-direction:column;height:calc(100vh - 64px);overflow:hidden">
+        <div class="p-6" style="flex-shrink:0">
+          <div class="flex justify-between items-center mb-5">
+            <div>
+              <a href="#/locations/${locationId}" class="text-sm text-muted" style="text-decoration:none">&larr; Back to location</a>
+              <h1 style="margin:var(--space-2) 0 0">Decision Engine</h1>
+            </div>
+            <div class="flex gap-2 items-center">
+              <button class="btn btn-secondary" id="dec-summary-btn">Summary</button>
+              <button class="btn btn-secondary" id="dec-export-btn">Export Report</button>
+            </div>
+          </div>
+
+          <!-- Overall progress bar -->
           <div>
-            <a href="#/locations/${locationId}" class="text-sm text-muted" style="text-decoration:none">&larr; Back to location</a>
-            <h1 style="margin:var(--space-2) 0 0">Decision Engine</h1>
-          </div>
-          <div class="flex gap-2 items-center">
-            <button class="btn btn-secondary" id="dec-summary-btn">Summary</button>
-            <button class="btn btn-secondary" id="dec-export-btn">Export Report</button>
-          </div>
-        </div>
-
-        <!-- Overall progress bar -->
-        <div class="mb-5">
-          <div class="flex justify-between text-sm mb-1">
-            <span>Overall Progress</span>
-            <span class="font-medium">${progress}%</span>
-          </div>
-          <div style="height:8px;background:var(--color-bg-subtle);border-radius:4px;overflow:hidden">
-            <div style="height:100%;width:${progress}%;background:var(--color-primary);border-radius:4px;transition:width 0.3s ease"></div>
+            <div class="flex justify-between text-sm mb-1">
+              <span>Overall Progress</span>
+              <span class="font-medium">${progress}%</span>
+            </div>
+            <div style="height:8px;background:var(--color-bg-subtle);border-radius:4px;overflow:hidden">
+              <div style="height:100%;width:${progress}%;background:var(--color-primary);border-radius:4px;transition:width 0.3s ease"></div>
+            </div>
           </div>
         </div>
 
-        <div class="flex gap-5">
-          <!-- Left progress panel -->
-          <div style="width:280px;flex-shrink:0">
-            <div class="card" style="padding:var(--space-3)">
+        <div class="flex gap-5" style="flex:1;overflow:hidden;padding:0 var(--space-6) var(--space-6)">
+          <!-- Left progress panel (sticky) -->
+          <div style="width:280px;flex-shrink:0;overflow-y:auto">
+            <div class="card" style="padding:var(--space-3);position:sticky;top:0">
               <div class="text-xs font-semibold text-muted mb-3" style="text-transform:uppercase;letter-spacing:0.05em">Categories</div>
               ${categories.map((cat, catIdx) => `
                 <div class="dec-cat-item ${catIdx === currentCategoryIndex ? 'is-active' : ''}" data-cat-idx="${catIdx}" style="
@@ -144,8 +146,8 @@ export default function decisionsPage(params) {
             </div>
           </div>
 
-          <!-- Main decision area -->
-          <div class="flex-1">
+          <!-- Main decision area (scrollable) -->
+          <div class="flex-1" style="overflow-y:auto">
             ${!tmpl ? `
               <div class="empty-state">
                 <h3>All Decisions Complete</h3>
