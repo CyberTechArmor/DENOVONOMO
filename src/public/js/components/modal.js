@@ -85,7 +85,7 @@ export function openModal(options = {}) {
 
   // Trigger entrance animation
   requestAnimationFrame(() => {
-    overlay.classList.add('modal-visible');
+    overlay.classList.add('is-active');
   });
 
   return { overlay, modal, bodyEl };
@@ -97,8 +97,7 @@ export function closeModal() {
   const { overlay, onClose, escHandler } = activeModal;
   document.removeEventListener('keydown', escHandler);
 
-  overlay.classList.remove('modal-visible');
-  overlay.classList.add('modal-hiding');
+  overlay.classList.remove('is-active');
 
   setTimeout(() => {
     if (overlay.parentNode) {

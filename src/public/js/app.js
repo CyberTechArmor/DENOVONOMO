@@ -87,7 +87,7 @@ async function showAddLocationModal() {
     // We'd need an orgs endpoint; for now allow creating without org
   } catch {}
 
-  const { bodyEl } = openModal({
+  openModal({
     title: 'Create New Location',
     body: `
       <div class="form-group">
@@ -110,32 +110,34 @@ async function showAddLocationModal() {
         <input type="date" class="form-input" id="loc-golive">
       </div>
     `,
-    footer: `
-      <button class="btn btn-secondary" data-action="close">Cancel</button>
-      <button class="btn btn-primary" id="create-loc-btn">Create Location</button>
-    `
-  });
-
-  bodyEl.querySelector('#create-loc-btn')?.addEventListener('click', async () => {
-    const name = bodyEl.querySelector('#loc-name').value.trim();
-    if (!name) { showToast('Name is required', 'error'); return; }
-    try {
-      await api.post('/locations', {
-        name,
-        address: bodyEl.querySelector('#loc-address').value,
-        location_type: bodyEl.querySelector('#loc-type').value,
-        target_go_live_date: bodyEl.querySelector('#loc-golive').value || null,
-      });
-      closeModal();
-      showToast('Location created', 'success');
-      router.resolve(); // refresh
-    } catch (err) {
-      showToast(err.message, 'error');
-    }
+    footer: [
+      { label: 'Cancel', class: 'btn-secondary', onClick: () => closeModal() },
+      { label: 'Create Location', class: 'btn-primary', onClick: async () => {
+        const name = document.getElementById('loc-name')?.value.trim();
+        if (!name) { showToast('Name is required', 'error'); return; }
+        try {
+          await api.post('/locations', {
+            name,
+            address: document.getElementById('loc-address')?.value,
+            location_type: document.getElementById('loc-type')?.value,
+            target_go_live_date: document.getElementById('loc-golive')?.value || null,
+          });
+          closeModal();
+          showToast('Location created', 'success');
+          router.resolve();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      }}
+    ]
   });
 }
 
 // Reference Pricing page
+// TODO: Pricing table needs per-unit context (e.g. "per device/mo", "per user/mo")
+// and quantity columns. Without this, prices like CrowdStrike look flat ($15)
+// instead of per-device. Add unit_label and quantity fields to reference_pricing
+// table and display them in the UI.
 function pricingPage() {
   const el = document.getElementById('page-content');
   el.innerHTML = '<div class="p-6"><div class="spinner"></div></div>';
@@ -193,7 +195,7 @@ function pricingPage() {
 function openCommandPalette() {
   const overlay = document.getElementById('command-palette-overlay');
   if (!overlay) return;
-  overlay.classList.add('open');
+  overlay.classList.add('is-active');
   const input = document.getElementById('command-palette-search');
   if (input) {
     input.value = '';
@@ -203,7 +205,7 @@ function openCommandPalette() {
 
 function closeCommandPalette() {
   const overlay = document.getElementById('command-palette-overlay');
-  if (overlay) overlay.classList.remove('open');
+  if (overlay) overlay.classList.remove('is-active');
 }
 
 function setupCommandPalette() {
@@ -234,7 +236,7 @@ function setupCommandPalette() {
         const docs = await api.get(`/documents?search=${encodeURIComponent(q)}`);
         const items = (docs.documents || docs || []).slice(0, 8);
         results.innerHTML = items.length ? items.map(d => `
-          <a href="#/documents/${d.id}" class="command-palette-item" onclick="document.getElementById('command-palette-overlay').classList.remove('open')">
+          <a href="#/documents/${d.id}" class="command-palette-item" onclick="document.getElementById('command-palette-overlay').classList.remove('is-active')">
             <span>${d.title}</span>
             <span class="text-muted text-sm">${d.category || ''}</span>
           </a>
@@ -282,11 +284,11 @@ function setupNotifications() {
   const dropdown = document.getElementById('notification-dropdown');
   if (bell && dropdown) {
     bell.addEventListener('click', () => {
-      dropdown.classList.toggle('open');
+      dropdown.classList.toggle('is-active');
     });
     document.addEventListener('click', (e) => {
       if (!bell.contains(e.target) && !dropdown.contains(e.target)) {
-        dropdown.classList.remove('open');
+        dropdown.classList.remove('is-active');
       }
     });
   }
@@ -298,11 +300,11 @@ function setupUserDropdown() {
   const dropdown = document.getElementById('user-dropdown');
   if (!btn || !dropdown) return;
 
-  btn.addEventListener('click', () => dropdown.classList.toggle('open'));
+  btn.addEventListener('click', () => dropdown.classList.toggle('is-active'));
 
   document.addEventListener('click', (e) => {
     if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
-      dropdown.classList.remove('open');
+      dropdown.classList.remove('is-active');
     }
   });
 
@@ -313,7 +315,7 @@ function setupUserDropdown() {
 
   dropdown.querySelector('[data-action="profile"]')?.addEventListener('click', (e) => {
     e.preventDefault();
-    dropdown.classList.remove('open');
+    dropdown.classList.remove('is-active');
     window.location.hash = '/profile';
   });
 }
