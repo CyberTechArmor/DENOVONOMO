@@ -1,151 +1,74 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="De Novo NoMo — The definitive technology framework for primary care practice infrastructure.">
-  <title>De Novo NoMo — Primary Care Technology Framework</title>
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="/css/variables.css">
-  <link rel="stylesheet" href="/css/base.css">
-  <link rel="stylesheet" href="/css/components.css">
-  <link rel="stylesheet" href="/css/layout.css">
-  <link rel="stylesheet" href="/css/pages.css">
-
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
-
-  <style>
-    /* Landing-specific inline overrides for initial paint */
-    .landing-page { background: var(--color-bg); }
-  </style>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Plan the technology behind your next primary care practice. Connect implementation guides, technology decisions, costs, and launch checklists in De Novo NoMo.">
+  <meta name="theme-color" content="#f4f4ec"><title>De Novo NoMo — From blueprint to opening day</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/landing.css"><script src="/js/landing.js" defer></script>
 </head>
-<body class="landing-page">
-
-  <!-- Background animation -->
-  <div class="landing-bg" aria-hidden="true"></div>
-
-  <!-- Navigation -->
-  <header>
-    <nav class="landing-nav">
-      <a href="/" class="landing-nav-brand">
-        <span class="landing-nav-logo">DN</span>
-        De Novo NoMo
-      </a>
-      <div class="landing-nav-actions">
-        <a href="/login.html" class="btn btn-secondary">Log in</a>
-        <a href="/login.html" class="btn btn-primary">Get Started</a>
-      </div>
-    </nav>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="header">
+    <a class="brand" href="/" aria-label="De Novo NoMo home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>de novo<span class="brand-line">nomo<span class="brand-dot">.</span></span></span></a>
+    <nav aria-label="Main navigation"><a href="#framework">The framework</a><a href="#workflow">How it works</a><a href="https://github.com/CyberTechArmor/DENOVONOMO">GitHub ↗</a></nav>
+    <a class="login" href="/login.html">Open workspace <span aria-hidden="true">↗</span></a>
   </header>
-
-  <!-- Hero -->
-  <main>
-    <section class="landing-hero">
-      <h1>The definitive technology framework for primary care practice infrastructure.</h1>
-      <p class="landing-hero-description">
-        Evidence-based guides, decision engines, and implementation checklists that eliminate
-        guesswork from healthcare IT. Built for consultants, practice managers, and clinical leaders.
-      </p>
-      <div class="landing-hero-actions">
-        <a href="/login.html" class="btn btn-primary btn-lg">
-          <i data-lucide="arrow-right" style="width:18px;height:18px"></i>
-          Start Building
-        </a>
-        <a href="#features" class="btn btn-secondary btn-lg">
-          <i data-lucide="book-open" style="width:18px;height:18px"></i>
-          Explore Framework
-        </a>
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="live-dot"></span> THE PRIMARY CARE TECHNOLOGY FRAMEWORK</p>
+        <h1 id="hero-title">A new practice.<br>A clear plan.<br><span class="hero-last">No guesswork.<svg viewBox="0 0 520 26" aria-hidden="true"><path d="M5 17 Q230 -2 512 12"/></svg></span></h1>
+        <p class="hero-description">You’re building a practice. Bring the technology into focus — from the first network connection to the first patient.</p>
+        <div class="hero-actions"><a class="button button-dark" href="/login.html">Start your plan <span aria-hidden="true">↗</span></a><a class="text-link" href="#framework">Explore the framework <span aria-hidden="true">↓</span></a></div>
+        <p class="hero-footnote"><span aria-hidden="true">↳</span> Built for practice managers, IT teams &amp; clinical leaders.</p>
+      </div>
+      <div class="blueprint" data-stage="0">
+        <div class="blueprint-top"><span><span class="live-dot"></span> YOUR PRACTICE, CONNECTED</span><button id="motion-toggle" type="button" aria-pressed="false">Pause motion <span aria-hidden="true">Ⅱ</span></button></div>
+        <div class="drawing-wrap"><svg id="practice-drawing" viewBox="0 0 760 590" role="img" aria-labelledby="drawing-title drawing-description"><title id="drawing-title">An illustrated primary care practice</title><desc id="drawing-description">An isometric clinic blueprint. Use the layer buttons below to explore network infrastructure, clinical systems, and launch planning.</desc></svg></div>
+        <div class="drawing-note"><span aria-hidden="true">+</span> EVERY CONNECTION.<br>ONE COHERENT PLAN.</div>
+        <div class="layer-caption" aria-live="off"><span id="stage-number" class="stage-number">01</span><div><strong id="stage-title">Lay the foundation.</strong><p id="stage-description">A network your whole practice can build on.</p></div></div>
+        <div class="layer-switcher" role="group" aria-label="Explore practice layers"><button type="button" data-layer="0" aria-pressed="true"><span>01</span> Infrastructure</button><button type="button" data-layer="1" aria-pressed="false"><span>02</span> Clinical systems</button><button type="button" data-layer="2" aria-pressed="false"><span>03</span> Ready to open</button></div>
+        <span class="blueprint-reference">ILLUSTRATIVE PRACTICE / NOT A LIVE PROJECT</span>
       </div>
     </section>
-
-    <!-- Features -->
-    <section id="features" class="landing-features">
-      <div class="landing-feature-card">
-        <div class="landing-feature-icon">
-          <i data-lucide="file-text"></i>
+    <div class="chapter-strip"><span>LESS REINVENTING. MORE MOVING FORWARD.</span><div><span>Plan with context</span><i></i><span>Decide with clarity</span><i></i><span>Build with confidence</span></div><a href="#framework" aria-label="Discover the framework">↓</a></div>
+    <section id="framework" class="framework section-pad" aria-labelledby="framework-title">
+      <div class="section-intro reveal"><p class="eyebrow">01 / SEE THE WHOLE PICTURE</p><div><h2 id="framework-title">A practice is an ecosystem.<br><span class="muted">Plan it like one.</span></h2><p>The EHR is only the beginning. Explore the connected layers behind a working practice, with guides that give every decision a place.</p></div></div>
+      <div class="domain-layout reveal">
+        <div class="domain-feature" aria-live="polite"><span class="mono" id="domain-code">LAYER 01 / 12</span><div class="domain-symbol" aria-hidden="true"><span></span><span></span><span></span><i></i><i></i><i></i></div><div><h3 id="domain-title">Network infrastructure</h3><p id="domain-description">Start with the backbone: internet, network design, firewalls, wireless, cabling, servers, and power.</p><a class="text-link" href="/login.html">Explore the guides <span aria-hidden="true">↗</span></a></div></div>
+        <div class="domain-list" role="group" aria-label="Explore framework topics">
+          <button type="button" data-domain="0" aria-pressed="true"><span>01</span>Network infrastructure<b aria-hidden="true">↗</b></button>
+          <button type="button" data-domain="1" aria-pressed="false"><span>02</span>Endpoints &amp; workstations<b aria-hidden="true">↗</b></button>
+          <button type="button" data-domain="2" aria-pressed="false"><span>03</span>EHR &amp; practice management<b aria-hidden="true">↗</b></button>
+          <button type="button" data-domain="3" aria-pressed="false"><span>04</span>Clinical devices<b aria-hidden="true">↗</b></button>
+          <button type="button" data-domain="4" aria-pressed="false"><span>05</span>Telephony &amp; communications<b aria-hidden="true">↗</b></button>
+          <button type="button" data-domain="5" aria-pressed="false"><span>06</span>Security &amp; resilience<b aria-hidden="true">↗</b></button>
+          <button type="button" data-domain="6" aria-pressed="false"><span>07</span>Data &amp; analytics<b aria-hidden="true">↗</b></button>
+          <button type="button" data-domain="7" aria-pressed="false"><span>08</span>Patient experience<b aria-hidden="true">↗</b></button>
+          <button type="button" data-domain="8" aria-pressed="false"><span>09</span>Administration &amp; operations<b aria-hidden="true">↗</b></button>
+          <button type="button" data-domain="9" aria-pressed="false"><span>10</span>Integration &amp; interoperability<b aria-hidden="true">↗</b></button>
+          <button type="button" data-domain="10" aria-pressed="false"><span>11</span>Remote access &amp; continuity<b aria-hidden="true">↗</b></button>
+          <button type="button" data-domain="11" aria-pressed="false"><span>12</span>AI &amp; emerging technology<b aria-hidden="true">↗</b></button>
         </div>
-        <h3>Implementation Guides</h3>
-        <p>
-          Comprehensive, versioned documentation covering every aspect of practice
-          technology — from EHR selection to network architecture. Collaboratively
-          authored with full revision history.
-        </p>
       </div>
-
-      <div class="landing-feature-card">
-        <div class="landing-feature-icon">
-          <i data-lucide="git-branch"></i>
+    </section>
+    <section id="workflow" class="workflow section-pad" aria-labelledby="workflow-title">
+      <div class="section-intro reveal"><p class="eyebrow">02 / TURN THE PLAN INTO PROGRESS</p><div><h2 id="workflow-title">From “where do we start?”<br>to “what’s next?”</h2><p>Keep the research, the tradeoffs, and the work together. A shared workspace for the decisions that move your practice forward.</p></div></div>
+      <div class="workflow-layout reveal">
+        <div class="workflow-steps" role="group" aria-label="Preview the planning workflow">
+          <button type="button" data-workflow="0" aria-pressed="true"><span class="step-count">01</span><span><strong>Understand the options.</strong><span>Use implementation guides to get the context before committing to a system.</span></span><b aria-hidden="true">↗</b></button>
+          <button type="button" data-workflow="1" aria-pressed="false"><span class="step-count">02</span><span><strong>Make the tradeoffs visible.</strong><span>Compare approaches and track upfront and recurring costs in your plan.</span></span><b aria-hidden="true">↗</b></button>
+          <button type="button" data-workflow="2" aria-pressed="false"><span class="step-count">03</span><span><strong>Give every task a next step.</strong><span>Move work through checklists with owners, due dates, and location context.</span></span><b aria-hidden="true">↗</b></button>
         </div>
-        <h3>Decision Engine</h3>
-        <p>
-          Walk through structured decision trees tailored to your practice profile.
-          Get scored vendor recommendations, cost projections, and a prioritized
-          implementation roadmap.
-        </p>
-      </div>
-
-      <div class="landing-feature-card">
-        <div class="landing-feature-icon">
-          <i data-lucide="check-square"></i>
-        </div>
-        <h3>Setup Checklists</h3>
-        <p>
-          Kanban-style task boards for every phase of your build-out. Track progress
-          across locations, assign owners, set deadlines, and never miss a
-          compliance milestone.
-        </p>
+        <div class="workspace-preview"><div class="preview-chrome"><span class="tiny-mark" aria-hidden="true">▦</span><span>De Novo NoMo / Workspace</span><span class="demo-label">ILLUSTRATIVE PREVIEW</span></div><div id="workflow-panel" aria-live="polite"></div></div>
       </div>
     </section>
-
-    <!-- Trust section -->
-    <section class="landing-trust">
-      <p class="landing-trust-label">Aligned with trusted frameworks</p>
-      <div class="landing-trust-row">
-        <span class="landing-trust-badge">
-          <i data-lucide="shield-check" style="width:16px;height:16px"></i>
-          ONC Health IT
-        </span>
-        <span class="landing-trust-badge">
-          <i data-lucide="shield-check" style="width:16px;height:16px"></i>
-          SAFER Guides
-        </span>
-        <span class="landing-trust-badge">
-          <i data-lucide="shield-check" style="width:16px;height:16px"></i>
-          HIPAA Security
-        </span>
-        <span class="landing-trust-badge">
-          <i data-lucide="shield-check" style="width:16px;height:16px"></i>
-          MGMA Benchmarks
-        </span>
-      </div>
-    </section>
-
-    <!-- CTA -->
-    <section class="landing-cta">
-      <h2>Ready to build with confidence?</h2>
-      <p>
-        Join the growing number of practices using De Novo NoMo to make smarter
-        technology decisions, faster.
-      </p>
-      <a href="/login.html" class="btn btn-primary btn-lg">
-        <i data-lucide="arrow-right" style="width:18px;height:18px"></i>
-        Get Started Free
-      </a>
-    </section>
+    <section class="approach section-pad reveal" aria-labelledby="approach-title"><p class="eyebrow">BUILT FOR THE PEOPLE BEHIND THE PRACTICE</p><h2 id="approach-title">The best technology plan<br>puts care first.</h2><div class="approach-bottom"><p>Your team has a practice to build and patients to serve. Bring the infrastructure decisions into one place, so everyone can see the way forward.</p><div class="approach-tags"><span>Shared decisions</span><span>Versioned documentation</span><span>Location-aware planning</span><span>Self-hosted workspace</span></div></div><span class="care-plus" aria-hidden="true">+</span></section>
+    <section class="closing section-pad reveal"><p class="eyebrow">START WITH A CLEARER PICTURE</p><h2>Your next chapter.<br><span>Thoughtfully connected.</span></h2><a class="button button-lime" href="/login.html">Build your practice plan <span aria-hidden="true">↗</span></a><div class="closing-lines" aria-hidden="true"><i></i><i></i><i></i><i></i></div></section>
   </main>
-
-  <!-- Footer -->
-  <footer class="landing-footer">
-    &copy; 2026 De Novo NoMo. All rights reserved.
-  </footer>
-
-  <script src="/js/landing.js" defer></script>
+  <footer><a href="/" class="footer-brand">de novo nomo.</a><span>Technology planned. Care connected.</span><a href="https://github.com/CyberTechArmor/DENOVONOMO">Explore the project ↗</a><span>© 2026 De Novo NoMo</span></footer>
+  <noscript><div class="noscript-message">The guides and workspace are available using the links above. Enable JavaScript to explore the animated practice and interactive previews.</div></noscript>
 </body>
 </html>
